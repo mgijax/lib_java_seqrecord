@@ -95,9 +95,11 @@ public class GBSeqRecord extends SeqRecord
                         // 63 - 73 = Date in the form dd-MMM-yyy
                         //              (e.g. 15-MAR-1991)
                         {
-				// get the sequence length
+				// get the sequence length as an int
+				Integer ilen = new Integer(0);
 				this.seqLength = 
-					(this.line.substring(22, 29)).trim();
+					ilen.parseInt(
+					  (this.line.substring(22, 29)).trim());
 				
 				// get the sequence type
 				this.type = 

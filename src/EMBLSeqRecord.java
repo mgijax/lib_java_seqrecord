@@ -113,8 +113,11 @@ public class EMBLSeqRecord extends SeqRecord
 				// then strip off the trailing ';'
 				this.type = this.type.substring(0, fieldLen -1);
 				
-				// get the sequence length
-				this.seqLength = tokenizedID.nextToken();
+				// get the sequence length as an int
+				Integer ilen = new Integer(0);
+				this.seqLength = 
+					ilen.parseInt(tokenizedID.nextToken());
+				//this.seqLength = tokenizedID.nextToken();
 				
 				//discard the sequence type 
 				dummy = tokenizedID.nextToken();

@@ -92,7 +92,7 @@ public abstract class SeqRecord
 			seqIdVersion.length());	
 	}
 
-	public String getSeqLength()
+	public int getSeqLength()
 		// Purpose: accessor for the sequence length
 	{
 		return this.seqLength;
@@ -116,7 +116,7 @@ public abstract class SeqRecord
 	protected StringBuffer text = new StringBuffer();
 
 	// The length of the sequence contained in the sequence record
-	protected String seqLength = "";
+	protected int seqLength = -1;
 
 	// The sequence type (e.g. mRNA)
 	protected String type = "";
