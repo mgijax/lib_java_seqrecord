@@ -1,11 +1,11 @@
 #
 # Dependencies for lib_java_seqrecord 
 
-# Products
+#! MGI Products
 #  Product      Tag                     Comments
 #---------------------------------------------------------------------------
 
 #! External Products
 #  Product      Tag                     Comments
 #---------------------------------------------------------------------------
-apache.regexp
+jakarta-regexp-1.2
