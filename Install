@@ -4,7 +4,7 @@
 # In development mode does nothing, otherwise compiles source into a temp
 # directory, jars the .class files to $INSTALLDIR, removes the temp directories
 #
-# This script must be run from the directory in which it resides (the tip
+# This script must be run from the directory in which it resides (the top
 # level of the lib_java_seqrecord installation)
 #
 # exit codes:
