@@ -97,27 +97,27 @@ public class GBSeqRecord extends SeqRecord
                         // Can be only one LOCUS line per record. Pieces of
                         // info in the LOCUS line are always found in fixed pos
                         // With columns starting at 1:
-                        // 23 - 29 = Length of sequence right justified
-                        // 37 - 41 = type (blank | DNA | RNA | tRNA | rRNA |
+                        // 30 - 40 = Length of sequence right justified
+                        // 48 - 53 = type (blank | DNA | RNA | tRNA | rRNA |
                         //               mRNA | uRNA | snRNA | scRNA)
-                        // 53 - 55 = The division code (see Section 3.3 in
+                        // 65 - 67 = The division code (see Section 3.3 in
                         //               NCBI-Genbank Flat File Release 123.0)
-                        // 63 - 73 = Date in the form dd-MMM-yyy
+                        // 69 - 79 = Date in the form dd-MMM-yyy
                         //              (e.g. 15-MAR-1991)
                         {
 				this.seqLength = 
 					Integer.parseInt(
-					  (this.line.substring(22, 29)).trim());
+					  (this.line.substring(29, 40)).trim());
 				
 				// get the sequence type
 				this.type = 
-					(this.line.substring(36, 41)).trim();
+					(this.line.substring(47, 53)).trim();
 	
 				// get the Genbank division code
-				this.division = this.line.substring(52, 55);
+				this.division = this.line.substring(64, 67);
 
 				// get the date
-				this.date = this.line.substring(62, 73);
+				this.date = this.line.substring(68, 79);
                         }
 			
 			else if ((this.line.startsWith(ACCESSION)))
