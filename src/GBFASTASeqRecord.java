@@ -51,27 +51,36 @@ public class GBFASTASeqRecord extends FASTASeqRecord
 
 		// carriage return
                 String CRT = "\n";
-		
+		// the seqidversion token in the description line
+		int seqIdVersionToken = 4;
+
 		// tokenized FASTA Id - a FASTA Id is a unique identifier that
 		// contains a GenBank SeqId which we must parse out e.g.
 		// this.seqIds.get(0) has the following format
 		// gi|3287367|gb|AC002397.1|AC002397
 		// we must parse out the last token tokenized on '|'
+		// Jan 03 - note the last token is not always the seqid
+		// thi 4th token is seqIdVersion - get it than tokenize it on
+		// '.' to get the seqId
 		StringTokenizer tokenizedFASTAId = new StringTokenizer(
                         (String)(this.seqIds.get(0)), "|");
 		
 		// count of total tokens in tokenizedFASTAId
-		int count = tokenizedFASTAId.countTokens();
+		int count = seqIdVersionToken;
 	
-		// to extract the seqId from this.seqIdVersion
-		StringTokenizer tokenizedSeqId;
-		
 		// the last token is the seqId
 		for(int i = 1; i < count ; i++)
 		{
 			dummy = tokenizedFASTAId.nextToken();
 		}
-		this.seqIds.set(0, tokenizedFASTAId.nextToken());
+
+		String seqIdVersion = tokenizedFASTAId.nextToken();	
+
+		// to extract the seqId from seqIdVersion
+                StringTokenizer tokenizedSeqIdV = new StringTokenizer(
+			seqIdVersion, ".");
+		// seqId is the first token
+		this.seqIds.set(0, tokenizedSeqIdV.nextToken());
 
 	}
 
