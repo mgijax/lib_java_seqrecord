@@ -1,9 +1,11 @@
 TAG: lib_java_seqrecord-1-0-2
-DATE: ?
+DATE: 12/10/2001
 STAFF: sc, blk
 RELEASE:
 CHANGES:
 1) Made substantial revisions to FASTASeqRecord to address issues from code review.
+2) All changes from code review
+
 TAG: lib_java_seqrecord-1-0-1
 DATE: 10/29/2001
 STAFF: sc, blk
