@@ -11,8 +11,8 @@ public class FASTASeqRecord extends SeqRecord
 	//	 HAS: A description string - also see superclass 
 	//	DOES: Implements the super class readText method to read itself
 	//	      from an input stream.  Sets attributes for a previously
-	//	      instantiated FASTASeqRecord object.  Provides accessor for
-	//	      description.  Resets attributes for a previously
+	//	      instantiated FASTASeqRecord object.  Provides accessor 
+	//	      for description.  Resets attributes for a previously
 	//	      instantiated FASTASeqRecord object.
 	//	      Also see superclass 
 	// Implementation:
@@ -20,6 +20,16 @@ public class FASTASeqRecord extends SeqRecord
 	//	
 	// Constructors: 
 	//
+
+        public FASTASeqRecord()
+        {
+	    // Purpose: Creates a default FASTASeqRecord object.
+	    //          Calls reset to initialize variables.
+	    // Throws: nothing
+	    
+	    this.reset();
+
+        }
 
 	//	
 	// Methods: 
@@ -53,7 +63,7 @@ public class FASTASeqRecord extends SeqRecord
 		String currentSeqID;
 		
 		// reinit all instance vars for a new record
-		reset();
+		this.reset();
                 
 		// read current line in the reader stream. 
                 this.line = reader.readLine();
@@ -191,12 +201,12 @@ public class FASTASeqRecord extends SeqRecord
 	    entry = ">" + seqID + " " + description + CRT;
 
 	    // Format sequence so there are maxLength characters per line.
-	    if (seqLength > maxLength)
+	    if (this.seqLength > maxLength)
 	    // Break up sequence if longer than maxLength.
 	    {
 
 		// number of complete sequence lines
-		int div = seqLength / maxLength;
+		int div = this.seqLength / maxLength;
 
 		// number of iterations required to reformat sequence
 		int loopLimit = 0;
@@ -209,7 +219,7 @@ public class FASTASeqRecord extends SeqRecord
 
 		// set the number of iterations required to reformat
 		// the sequence.
-		if ((seqLength % maxLength) > 0)
+		if ((this.seqLength % maxLength) > 0)
 		{
 		    loopLimit = div + 1;
 		}
@@ -231,9 +241,9 @@ public class FASTASeqRecord extends SeqRecord
 
 		    // reset end coordinate if it extends beyond length of
 		    // original sequence.
-		    if (end > seqLength)
+		    if (end > this.seqLength)
 		    {
-			end = seqLength;
+			end = this.seqLength;
 		    }
 
 		    // append the sequence substring to entire record
