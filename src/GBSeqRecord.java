@@ -23,13 +23,13 @@ public class GBSeqRecord extends SeqRecord
 	//
 
 	public void readText(BufferedReader reader) 
-		throws IOException, EOFException, RESyntaxException
+		throws IOException, RESyntaxException
         {
         // Purpose: reads a Genbank-format sequence record using 'reader'
         // Returns: nothing
         // Assumes: "reader" is a stream of Genbank-format sequence records
         // Effects: "reader" has advanced to the next record in the stream 
-        // Throws: IO, EOF,  and regular expression syntax exceptions
+        // Throws: IO and regular expression syntax exceptions
         // Notes:
 
 		// the Accession line broken into tokens for easy access
@@ -43,46 +43,56 @@ public class GBSeqRecord extends SeqRecord
 		// for discarded tokens
 		String dummy;
 	
-		// LOCUS is the first line of a record
-		// true when first LOCUS line in the stream is reached  
-		// This eliminates the file header.
-		boolean flagLocus = false;
-
-		// true when first ACCESSION line is reached. When
-		// true all subsequent lines are also ACCESSION lines until the 
-		// VERSION line is reached, then set this flag to false.
+		// true if current line is an  ACCESSION line. false when 
+		// VERSION line has been reached
 		boolean flagAccession = false;
 
-		// true when an ORGANISM line is reached. When true
-		// all subsequent lines are also ORGANISM lines until the 
-		// REFERENCE line is reached, then set this flag to false.
+		// true if current line is an ORGANISM line. false when 
+		// REFERENCE line has been reached
                 boolean flagOrganism = false;
 
-		// true when an ORIGIN line is reached. When true
-		// all subsequent lines are also ORIGIN lines until the
-		// "//" end of record line is reached.
+		// true if current line is an ORIGIN line
+		// all subsequent lines are ORIGIN lines until EOREC 
 		boolean flagOrigin = false;
 
 		// carriage return
                 String CRT = "\n";
 		
-		// value of the previous line for end of record error checking
-		String prevLine = "";
-		
-		// reinit all appended instance vars for a new record
-		this.organism.setLength(0);
-		this.text.setLength(0);
-		this.sequence.setLength(0);
-		this.seqIds.clear();
-                
+		// reset all instance vars for a new record
+                reset();
+
 		// read current line in the reader stream. 
                 this.line = reader.readLine();
  		
-		while(this.line != null && !(this.line.startsWith(EOREC)))
-		// a null "line" indicates end of file. If EOF or end of record
-                // quit the loop, the full record has been read
+		// ignore any header lines, we're looking for the first line
+                // of a record. Could happen midstream when input is piped to
+                // stdin
+                while( this.line != null && !(this.line.startsWith(this.LOCUS)))
                 {
-			if(this.line.startsWith(LOCUS)) 
+                        this.line = reader.readLine();
+                }
+
+		// a null line indicates EOF. If EOF or end of record we're done
+		while(this.line != null && !(this.line.startsWith(EOREC)))
+                {
+			// append line to text
+                        this.text.append(this.line + CRT);
+
+			if ((this.line.startsWith(ORIGIN)))
+                        // If line starts with ORIGIN, set the origin flag which
+                        // indicates the next line(s) will be sequence lines
+                        {
+                                flagOrigin = true;
+                        }
+
+                        else if (flagOrigin == true)
+                        // if the Origin flag is set append this line to
+                        // "sequence". When EOREC is found, sequence is done
+                        {
+                                this.sequence.append(this.line + CRT);
+                        }
+
+			else if(this.line.startsWith(LOCUS)) 
 			// Parse LOCUS line
                         // Can be only one LOCUS line per record. Pieces of
                         // info in the LOCUS line are always found in fixed pos
@@ -95,10 +105,8 @@ public class GBSeqRecord extends SeqRecord
                         // 63 - 73 = Date in the form dd-MMM-yyy
                         //              (e.g. 15-MAR-1991)
                         {
-				// get the sequence length as an int
-				Integer ilen = new Integer(0);
 				this.seqLength = 
-					ilen.parseInt(
+					Integer.parseInt(
 					  (this.line.substring(22, 29)).trim());
 				
 				// get the sequence type
@@ -110,13 +118,9 @@ public class GBSeqRecord extends SeqRecord
 
 				// get the date
 				this.date = this.line.substring(62, 73);
-
-				// We have found a lOCUS line
-				flagLocus = true;
                         }
 			
-			else if ((this.line.startsWith(ACCESSION)) && 
-					(flagLocus == true))
+			else if ((this.line.startsWith(ACCESSION)))
 			// Parse the ACCESSION line
                         // Can be multiple ACCESSION lines/record which end
                         //      when VERSION line is reached
@@ -143,8 +147,7 @@ public class GBSeqRecord extends SeqRecord
 				
 			}
 
-			else if ((this.line.startsWith(VERSION)) && 
-					(flagLocus == true))
+			else if ((this.line.startsWith(VERSION))) 
 			// Parse the VERSION line
                         // The VERSION line indicates the end of the ACCESSION
                         //      lines
@@ -171,7 +174,7 @@ public class GBSeqRecord extends SeqRecord
 				
 			}
 
-			else if(flagLocus == true && flagAccession == true)
+			else if(flagAccession == true)
 			// we have the first ACCESSION line but haven't reached
                         //      VERSION line yet so we have multiple ACCESSION
                         //      lines. Save all these Ids
@@ -186,8 +189,7 @@ public class GBSeqRecord extends SeqRecord
 
                         }
 
-                        else if((ORGANISM.match(this.line) == true) && 
-							(flagLocus == true))
+                        else if((ORGANISM.match(this.line) == true)) 
 			// we have found the ORGANISM line save it
                         // ORGANISM is a sub-keyword of SOURCE and indented
                         //      use regexp to find it
@@ -199,15 +201,14 @@ public class GBSeqRecord extends SeqRecord
 
                         }
 
-			else if((this.line.startsWith(REFERENCE)) && 
-							(flagLocus == true))
+			else if((this.line.startsWith(REFERENCE)))
 			// line starts with REFERENCE we are at the end
                         // of ORGANISM lines. Set the organism flag to false
                         {
 				flagOrganism = false;
                         }
 
-                        else if (flagOrganism == true && flagLocus == true)
+                        else if (flagOrganism == true)
 			// If we have found the ORGANISM line, but haven't found
                         //    the REFERENCE line, append the taxonomic
                         //    classification level lines that follow the
@@ -216,60 +217,45 @@ public class GBSeqRecord extends SeqRecord
                                 this.organism.append(this.line);
                         }
 
-			else if ((this.line.startsWith(ORIGIN)) && 
-							(flagLocus == true))
-			// If line starts with ORIGIN, set the origin flag which
-                        // indicates the next line(s) will be sequence lines
-			{
-				flagOrigin = true;
-			}
-
-			else if (flagLocus == true && flagOrigin == true)
-			// if the Origin flag is set append this line to
-                        // "sequence". When EOREC is found, sequence is done
-			{
-				this.sequence.append(this.line);
-				this.sequence.append(CRT);
-			}
-
-			if (flagLocus == true)
-			// Append "line" to "text" only if first LOCUS line has
-                        // been found
-                        {
-                                this.text.append(this.line);
-				this.text.append(CRT);
-                        }
-			
-			// keep track of previous line for error checking
-			prevLine = this.line;
-
 			// read the next line in the record
 			this.line = reader.readLine();
-				
-			// Append this.line if EOREC ("//") Since it is part
-			// of the loop condition above it won't be appended 
-			// otherwise
-			if(this.line.startsWith(EOREC) && flagLocus == true)
-			{
-				this.text.append(this.line);
-				this.text.append(CRT);
-			} 
-
-			if(this.line == null && !(prevLine.startsWith(EOREC)))
-			// If "line" is null we are at end-of-file. If we are at
-                        // EOF and the last line was not EOREC then throw an
-                        // exception
-                        {
-                                throw new EOFException("EOF found before " +
-					"end of record!!");
-                        }
 		}
+
+		// Here this.line is either null or EOREC
+                // must test for null to avoid testing for EOREC when null
+                if (this.line == null)
+                {
+                        // do nothing we are at EOF
+                }
+                // we are at EOREC so append it to text
+                else
+                {
+                        this.text.append(this.line + CRT);
+                }
+
 	}
 	
 	// Accessor for GI Id
 	public String getGenInfoId()
         {
                 return this.genInfoId;
+        }
+
+	private void reset()
+                // Purpose: reinitializes instance variables
+        {
+		this.line = "";
+		this.text.setLength(0);
+		this.seqLength = -1;
+                this.type = "";
+		this.division = "";
+                this.date = "";
+		this.seqIds.clear();
+		this.seqIdVersion = "";
+                this.organism.setLength(0);
+                this.sequence.setLength(0);
+		this.genInfoId = "";
+		
         }
 
 	//

@@ -28,7 +28,7 @@ public abstract class SeqRecord
 			BufferedReader reader)  // reader for text of the seq-
 						// uence record  
 		throws IOException, EOFException, RESyntaxException;
-		// Purpose: reads itself (a sequence record) from a file
+		// Purpose: reads itself (a sequence record) from 'reader'
 		// Returns: nothing
 		// Assumes: it will be implemented in all subclasses
 		// Effects: nothing
@@ -37,7 +37,8 @@ public abstract class SeqRecord
 
 	public String getLine()
 		// Purpose: accessor for last line read of each record. 
-		// This is the mechanism for determining end of file
+		//          Value will be either end-of-record string for 
+		// 	     the sequence record OR null if EOF
 	{
 		return this.line;
 	}
@@ -74,12 +75,15 @@ public abstract class SeqRecord
 
         public Vector getSeqIds()
 		// Purpose: accessor for the sequence record seqIds
+		//           returns a Vector of Strings 
         {
                 return this.seqIds;
         }
 	
 	public String getVersion()
 		// Purpose: accessor for the sequence record seqIdVersion
+		//          Returns empty string for records that do not use
+		//          the convention seqId + '.' + version
 	{
 		return this.seqIdVersion;
 	}
@@ -87,6 +91,8 @@ public abstract class SeqRecord
 	public String getVersionNumber()
 	{
 		// Purpose: accessor for the sequence record version number
+		//          Returns empty string for records that do not use
+		//	    the convention seqId + '.' + version
 		int index = seqIdVersion.indexOf(".");
 		return seqIdVersion.substring(index + 1, 
 			seqIdVersion.length());	
@@ -108,8 +114,7 @@ public abstract class SeqRecord
 	//instance vars
 	//
 	
-	// The current line of a sequence record. Used ony to test last line
-	// in a record for null which is end-of-file indicator
+	// null when EOF, else end of record string
 	protected String line = "";
 
 	// The text of one sequence record
@@ -127,10 +132,12 @@ public abstract class SeqRecord
 	// The sequence record date
 	protected String date = "";
 
-	// The sequence record seqIds. Position 0 is the primary seqId
+	// A Vector of Strings representing seqIds for this record. 
+	// Position 0 is the primary seqId
 	protected Vector seqIds = new Vector();	
 
-	// The seqId + '.' + version number
+	// This field used only by sequence records which version with the
+	// convention - seqId + '.' + version number
         protected String seqIdVersion = "";
 
 	// The sequence record organism type(s) 
