@@ -6,15 +6,16 @@ import java.util.*;
 public class SPSeqInterrogator
 {
 	// Concept:
-        //        IS: an interrogator that gives boolean answers to questions
-	//		about SwissProt/TREMBL records
-        //       HAS: a mapping structure for mapping SwissProt/TREMBL control-
-	//	      led vocabulary to string expressions	
+        //        IS: an object that queries a SwissProt/TREMBL sequence record 
+	//	      to determine if it is for a given organism
+        //       HAS: a mapping structure for mapping controlled vocabulary
+	//	      to string expressions	
         //      DOES: Given a sequence record and a controlled vocabulary string
 	//		determine if a predicate is true. e.g. Given a sequence
 	//		record 's' and a string "mouse" determine if 's' is a 
 	//		mouse record 
-	// RESPONSIBLE FOR: 1) mapping controlled vocab to string expressions
+	// RESPONSIBLE FOR: 1) mapping controlled vocab terms to string 
+	//		       expressions
 	//		    2) providing basic predicates to compare fields
 	//		       of a sequence record to controlled vocabulary	
         // Implementation:
@@ -27,27 +28,18 @@ public class SPSeqInterrogator
 		SeqRecord s,       // a SwissProt sequence record
 		String organism)   // organism controlled vocabulary
 	{
-	// Purpose: Determines whether a sequence record is for a given organism
+	// Purpose: Determines whether sequence record 's' is for 'organism'
         // Returns: boolean true or false
-        // Assumes: "organism" is a valid controlled vocabulary for 's'
+        // Assumes: 'organism' is a valid controlled vocabulary for 's'
 	//		and has been converted to lower case
         // Effects: nothing
         // Throws: nothing
         // Notes:
 		
-		// catenate the organism(species) and classification fields
-		String speciesAndClassif = ((EMBLSeqRecord)s).
-				getOrganismClassif() + " " + s.getOrganism();
-	
-		// get the string expression that is mapped to "organism"
+		// get the string expression that is mapped to 'organism'
 		String matchString = (String)expressions.get(organism);
 		
-                // If matchString is null then "organism" is not represented
-                // in the hashmap. This shouldn't happen because the  Applic-
-                // ation filter must know what organisms are supported
-
-		// if "matchString" is found in 's' es organism field
-                // 's' is the organism represented by matchString
+		// return true if the string expression matches organism of  's'
 		if((s.getOrganism()).indexOf(matchString) >  -1)
                         return true;
                 else

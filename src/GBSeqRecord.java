@@ -8,9 +8,10 @@ public class GBSeqRecord extends SeqRecord
 {
 	// Concept:
 	//	  IS: an object that represents a Genbank-format sequence record
-	//	 HAS: A GenInfo Identifier also see superclass 
-	//	DOES: reads itself from an input stream (parsing) and
-	//	      provides accessor for GI Id. Also see superclass 
+	//	 HAS: A GenInfo Identifier (GI) - also see superclass 
+	//	DOES: Implements the super class readText method to read itself 
+	//	      from an input stream. Provides accessor for GI Id - 
+	//	      Also see superclass 
 	// Implementation:
 
 	//	
@@ -24,41 +25,40 @@ public class GBSeqRecord extends SeqRecord
 	public void readText(BufferedReader reader) 
 		throws IOException, EOFException, RESyntaxException
         {
-        // Purpose: reads a Genbank-format sequence record from a file
+        // Purpose: reads a Genbank-format sequence record using 'reader'
         // Returns: nothing
-        // Assumes: "reader" is a filestream of Genbank-format sequence records
+        // Assumes: "reader" is a stream of Genbank-format sequence records
         // Effects: "reader" has advanced to the next record in the stream 
         // Throws: IO, EOF,  and regular expression syntax exceptions
         // Notes:
 
-		// breaks the Accession line into tokens
-		// for easy access to seqId's
+		// the Accession line broken into tokens for easy access
+		// seqId's
 		StringTokenizer tokenizedAccession;
 
-		// breaks the VERSION line into tokens for easy access to
+		// the VERSION line broken into tokens for easy access to
 		// version numbers and GenInfoId 
 		StringTokenizer tokenizedVersion;
 
-		// for unneeded tokens when parsing tokens
+		// for discarded tokens
 		String dummy;
 	
-		// LOCUS is the first line in a record
-		// When the first LOCUS line in the stream is reached set to 
-		// true and start appending "line" to "text".
+		// LOCUS is the first line of a record
+		// true when first LOCUS line in the stream is reached  
 		// This eliminates the file header.
 		boolean flagLocus = false;
 
-		// When the first ACCESSION line is reached set to true. When
+		// true when first ACCESSION line is reached. When
 		// true all subsequent lines are also ACCESSION lines until the 
 		// VERSION line is reached, then set this flag to false.
 		boolean flagAccession = false;
 
-		// When an ORGANISM line is reached set to true. When true
+		// true when an ORGANISM line is reached. When true
 		// all subsequent lines are also ORGANISM lines until the 
 		// REFERENCE line is reached, then set this flag to false.
                 boolean flagOrganism = false;
 
-		// When an ORIGIN line is reached set to true. When true
+		// true when an ORIGIN line is reached. When true
 		// all subsequent lines are also ORIGIN lines until the
 		// "//" end of record line is reached.
 		boolean flagOrigin = false;
@@ -66,7 +66,7 @@ public class GBSeqRecord extends SeqRecord
 		// carriage return
                 String CRT = "\n";
 		
-		// value of the previous line for error checking
+		// value of the previous line for end of record error checking
 		String prevLine = "";
 		
 		// reinit all appended instance vars for a new record
@@ -78,16 +78,13 @@ public class GBSeqRecord extends SeqRecord
 		// read current line in the reader stream. 
                 this.line = reader.readLine();
  		
-		// Debug
-		this.lineCount ++;
-	
 		while(this.line != null && !(this.line.startsWith(EOREC)))
 		// a null "line" indicates end of file. If EOF or end of record
                 // quit the loop, the full record has been read
                 {
 			if(this.line.startsWith(LOCUS)) 
 			// Parse LOCUS line
-                        // Can be only one LOCUS line/record. Pieces of
+                        // Can be only one LOCUS line per record. Pieces of
                         // info in the LOCUS line are always found in fixed pos
                         // With columns starting at 1:
                         // 23 - 29 = Length of sequence right justified
@@ -133,7 +130,7 @@ public class GBSeqRecord extends SeqRecord
 				// discard the ACCESSION tag field
 				dummy = tokenizedAccession.nextToken();
 				
-				// place each seqId (token) in "seqId" Vector	
+				// remaining tokens are seqIds, save them
 				while(tokenizedAccession.hasMoreElements())
                                 {
                                         this.seqIds.add(
@@ -161,7 +158,7 @@ public class GBSeqRecord extends SeqRecord
 				dummy = tokenizedVersion.nextToken();
 
 				// get the version id
-				this.version = tokenizedVersion.nextToken();
+				this.seqIdVersion = tokenizedVersion.nextToken();
 
 				// get the genbank info id
 				this.genInfoId = tokenizedVersion.nextToken();
@@ -173,9 +170,9 @@ public class GBSeqRecord extends SeqRecord
 			}
 
 			else if(flagLocus == true && flagAccession == true)
-			// If we have the ACCESSION line but haven't reached
-                        //      VERSION line yet we have multiple ACCESSION
-                        //      lines. Add these id's to the "seqIds" Vector
+			// we have the first ACCESSION line but haven't reached
+                        //      VERSION line yet so we have multiple ACCESSION
+                        //      lines. Save all these Ids
                         {
                                 tokenizedAccession = 
 					new StringTokenizer(this.line);
@@ -189,8 +186,7 @@ public class GBSeqRecord extends SeqRecord
 
                         else if((ORGANISM.match(this.line) == true) && 
 							(flagLocus == true))
-			// If we have found the ORGANISM line
-                        //     save the formal scientific name
+			// we have found the ORGANISM line save it
                         // ORGANISM is a sub-keyword of SOURCE and indented
                         //      use regexp to find it
                         {
@@ -203,7 +199,7 @@ public class GBSeqRecord extends SeqRecord
 
 			else if((this.line.startsWith(REFERENCE)) && 
 							(flagLocus == true))
-			// If line starts with REFERENCE we are at the end
+			// line starts with REFERENCE we are at the end
                         // of ORGANISM lines. Set the organism flag to false
                         {
 				flagOrganism = false;
@@ -248,9 +244,6 @@ public class GBSeqRecord extends SeqRecord
 			// read the next line in the record
 			this.line = reader.readLine();
 				
-			//For debugging
-			this.lineCount++;
-			
 			// Append this.line if EOREC ("//") Since it is part
 			// of the loop condition above it won't be appended 
 			// otherwise
@@ -269,13 +262,6 @@ public class GBSeqRecord extends SeqRecord
 					"end of record!!");
                         }
 		}
-		//DEBUG:
-		//System.out.println("Sequence = " + sequence);
-		//System.out.println("Text = " + text);
-		//for(int i = 0; i < this.seqIds.size(); i++ )
-		//	System.out.println(seqIds.elementAt(i));
-		//System.out.println(this.getVersion());
-		
 	}
 	
 	// Accessor for GI Id
@@ -293,10 +279,7 @@ public class GBSeqRecord extends SeqRecord
 	// of sequence id's
 	protected String genInfoId = "";
 	
-	//DEBUG:
-	//public static int lineCount = 0;
-	
-	//String expressions for parsing Genbank-format records
+	// String expressions for parsing Genbank-format records
         private static String LOCUS = "LOCUS";
         private static String ACCESSION = "ACCESSION";
 	private static String VERSION = "VERSION";
@@ -307,6 +290,7 @@ public class GBSeqRecord extends SeqRecord
 	//Regular Expression objects for parsing Genbank-format records
 	private static RE ORGANISM;
 
+	// define the regular expression
         static
         {
             try

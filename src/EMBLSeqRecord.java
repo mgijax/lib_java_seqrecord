@@ -8,9 +8,10 @@ public class EMBLSeqRecord extends SeqRecord
 {
 	// Concept:
 	//	  IS: an object that represents a EMBL-format sequence record
-	//	 HAS: see superclass 
+	//	 HAS: an organism classification - also see superclass 
 	//	DOES: Implements the super class readText method to read itself
-	//	 	from an input stream (parsing). Also see super class.
+	//	 	from an input stream. Provides accessor for organism
+	//	        classification. Also see super class.
 	// Implementation:
 
 	//	
@@ -24,35 +25,32 @@ public class EMBLSeqRecord extends SeqRecord
 	public void readText(BufferedReader reader) 
 		throws IOException, EOFException, RESyntaxException
         {
-        // Purpose: reads an EMBL-format sequence record from a file
-        // Returns: nothing
-        // Assumes: "reader" is a filestream of EMBL-format sequence records
-        // Effects: "reader" has advanced to the next record in the stream
-        // Throws: IO, EOF,  and regular expression syntax exceptions
-        // Notes:
+		// Purpose: reads an EMBL-format sequence record using 'reader'
+		// Returns: nothing
+		// Assumes: "reader" is a stream of EMBL-format sequence records
+		// Effects: "reader" has advanced to next record in the stream
+		// Throws: IO, EOF,  and regular expression syntax exceptions
+		// Notes:
 
-		// breaks the ID line into tokens for easy access to 
+		// the ID line broken into tokens for easy access to 
                 // for easy access to sequence type and length
                 StringTokenizer tokenizedID;
 
-		// breaks the AC line into tokens
-                // for easy access to seqId's
+		// the AC line broken into tokens for easy access to seqId's
 		StringTokenizer tokenizedAccession;
 
-		// breaks the DT line into tokens
-                // for easy access to date
+		// the DT line broken into tokens for easy access to date
 		StringTokenizer tokenizedDate;
 
 		// for discarded tokens 
 		String dummy;
 
 		// ID is the first line of a record
-		// When the first ID line in the stream is reached set to
-                // true and start appending "line" to "text".
+		// true when first ID line in the stream is reached 
                 // This eliminates the file header.
 		boolean flagID = false;  
 
-		// When a SQ line is reached set to true. When true
+		// true when SQ (sequence) line is reached. When true
                 // all subsequent lines are sequence lines until the
                 // "//" end of record line is reached 
 		boolean flagSQ = false;  
@@ -60,12 +58,15 @@ public class EMBLSeqRecord extends SeqRecord
 		// carriage return 
 		String CRT = "\n";
 		
-		// value of the previous line for error checking
+		// value of the previous line for end of record error checking
 		String prevLine = "";
 
-		// for stripping ';' off the end of seqIds
+		// for stripping ';' off the end of seqIds on the AC line
 		String tempId = "";	
-
+		
+		// The length of a seqId (AC line) or molecule type (ID line)
+		// off the trailing ';'so we can strip
+                int fieldLen = 0;
 
 		// reinit all appended instance vars for a new record
 		this.text.setLength(0);
@@ -73,10 +74,6 @@ public class EMBLSeqRecord extends SeqRecord
 		this.organismClassif.setLength(0);
 		this.sequence.setLength(0);
 		this.seqIds.clear();
-		
-		// The length of a seqId and molecule type so we can strip 
-		// off the trailing ';'
-		int fieldLen = 0;  
 		
 		// read current line in the reader stream
                 this.line = reader.readLine();
@@ -114,7 +111,7 @@ public class EMBLSeqRecord extends SeqRecord
 				// Find out how long the molecule type is
 				fieldLen = this.type.length();
 				// then strip off the trailing ';'
-				this.type = this.type.substring(0, fieldLen - 1);
+				this.type = this.type.substring(0, fieldLen -1);
 				
 				// get the sequence length
 				this.seqLength = tokenizedID.nextToken();
@@ -122,16 +119,16 @@ public class EMBLSeqRecord extends SeqRecord
 				//discard the sequence type 
 				dummy = tokenizedID.nextToken();
                                
-				// We have found an ID line 
+				// true if we have found ID line 
 				flagID = true;
                         }
 			
 			// If "line" starts with "AC":
                         // Can be multiple ACCESSION lines per record
 			else if ((this.line.startsWith(ACCESSION)) 
-				&& (flagID == true))
+				&& (flagID == true))   // file header eliminated
 			{
-				// break this AC line into tokens
+				// break AC line into tokens
 				tokenizedAccession = new StringTokenizer(
 							this.line);	
 				// discard the AC tag field
@@ -140,7 +137,6 @@ public class EMBLSeqRecord extends SeqRecord
 				// get all the seqId's on this line
 				while(tokenizedAccession.hasMoreElements())
 				{
-	
 			            // load the token into the seqId array
 			    	    this.seqIds.add(
 						tokenizedAccession.nextToken());
@@ -158,9 +154,9 @@ public class EMBLSeqRecord extends SeqRecord
 			}
 			// If "line" starts with DT:
 			// There can be multiple DT (date) lines, the last
-			// one is the Last annotation update
-			else if ((this.line.startsWith(DATE)) && 
-						(flagID == true))
+			// one is what we want: the *last* annotation update
+			else if ((this.line.startsWith(DATE))
+				&& (flagID == true))   // file header eliminated
 			{
 				// break the DT line into tokens
 				tokenizedDate = new StringTokenizer(this.line);
@@ -174,8 +170,8 @@ public class EMBLSeqRecord extends SeqRecord
 			// If "line" starts with OS:
 			// This line lists all the  organisms in which this
 			// sequence has been found
-                        else if((ORGANISMSOURCE.match(this.line) == true) && 
-						(flagID == true))
+                        else if((ORGANISMSOURCE.match(this.line) == true)
+				&& (flagID == true))   // file header eliminated
                         {
 				// save the organisms 
 				this.organism.append(
@@ -184,8 +180,8 @@ public class EMBLSeqRecord extends SeqRecord
 			// If "line" starts with OC:
 			// This line lists the organism classification for the 
 			// first organism on the OS line 
-			else if ((ORGANISMCLASSIF.match(this.line) == true) && 
-						(flagID == true))
+			else if ((ORGANISMCLASSIF.match(this.line) == true)
+				&& (flagID == true))   // file header eliminated
 			{
 				//save the organism classification
 				this.organismClassif.append(
@@ -194,8 +190,8 @@ public class EMBLSeqRecord extends SeqRecord
 			// If "line" starts with SQ:
 			// set the SQ flag which indicates the next line(s)
                         // will be sequence lines
-                        else if ((this.line.startsWith(SEQUENCE)) && 
-						flagID == true)
+                        else if ((this.line.startsWith(SEQUENCE))
+				&& (flagID == true))
 			{
 				flagSQ = true;
 			}
@@ -240,6 +236,8 @@ public class EMBLSeqRecord extends SeqRecord
 	}
 	// Accessor for Organism Classification
 	public String getOrganismClassif()
+		// Purpose: accessor for the organism classification of this
+		// sequence record 
 	{
 		return (this.organismClassif.toString()).toLowerCase();
 	}
@@ -248,7 +246,8 @@ public class EMBLSeqRecord extends SeqRecord
 	//instance vars
 	//
 
-	// The classification of the first organism source (OS) listed
+	// The classification (OC line) of the organism source species listed on
+	// the *first* OS line
 	protected StringBuffer organismClassif = new StringBuffer();
 	
 	//regular expression objects for parsing EMBL-format records
@@ -259,14 +258,12 @@ public class EMBLSeqRecord extends SeqRecord
 	private static String ID = "ID";
 	private static String ACCESSION = "AC";
 	
-	//VERSION is only for EMBL nucleotide sequences
-	//   do we need to somehow extrapolate a version for EMBL protein seqs?
 	//private static String VERSION = "SV";
 	private static String DATE = "DT";
 	private static String SEQUENCE = "SQ";
 	private static String EOREC = "//";
 
-
+	// define the regular expressions
         static
         {
             try
@@ -274,12 +271,13 @@ public class EMBLSeqRecord extends SeqRecord
                    ORGANISMSOURCE = new RE("^OS +(.+)$");
                    ORGANISMCLASSIF = new RE("OC +(.+)$");
             }
+
+	    // this should only happen during development - so catch here
             catch(RESyntaxException e)
             {
                 System.out.println(" RESyntaxException in EMBLSeqRecord: " 
 			+ e.getMessage());
             }
         }
-
 }
 
