@@ -1,3 +1,11 @@
+TAG: lib_java_seqrecord-1-0-8
+DATE: 02/17/2002
+STAFF: sc, blk
+RELEASE:
+CHANGES:
+1) Added isOrganismClassif to SPSeqInterrogator to search the EMBL format OS 
+   section
+
 TAG: lib_java_seqrecord-1-0-7
 DATE: 02/04/2002
 STAFF: sc, blk
