@@ -297,6 +297,7 @@ public class GBSeqRecord extends SeqRecord
             {
                    ORGANISM = new RE("^ +ORGANISM +(.+)$");
             }
+	    // this should only happen during development - so catch here
             catch(RESyntaxException e)
             {
                 System.out.println(" RESyntaxException: " 
