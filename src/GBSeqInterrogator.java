@@ -71,6 +71,7 @@ public class GBSeqInterrogator
 		expressions.put("rat", RAT);
 		expressions.put("rodent", RODENT);
 		expressions.put("human", HUMAN);
+		expressions.put("gbstsmouse", MOUSE);
 	} 
 }
 
