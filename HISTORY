@@ -1,3 +1,12 @@
+TAG: lib_java_seqrecord-1-0-7
+DATE: 02/04/2002
+STAFF: sc, blk
+RELEASE:
+CHANGES:
+1) added GBFASTASeqRecord.java to read the FASTA description format used by GenBank. Minimal right now - just grabs the seqId. We could also get seqIdVersion
+and gi number
+
+
 TAG: lib_java_seqrecord-1-0-6
 DATE: 01/30/2002
 STAFF: sc, blk
