@@ -2,7 +2,6 @@ package org.jax.mgi.bio.seqrecord;
 
 import java.io.*;
 import java.util.*;
-import org.apache.regexp.*;
 
 public abstract class SeqRecord
 {
@@ -10,12 +9,12 @@ public abstract class SeqRecord
 	//	  IS: an abstract representation of a sequence record which
 	//		expects its concrete subclasses to implement the
 	//		readText method to read/parse specific record types
-	//	 HAS: an organism, division, type (mRNA, DNA, etc), 
+	//	 HAS: an organism, division, type (mRNA, DNA, etc),
 	//            sequence, seqIds, seqIdVersion, sequence length, date
 	//	DOES: reads itself from an input stream parsing out the items
 	// 	      in HAS. Provides accessors for each HAS above
 	// Implementation:
-	
+
 	//
 	// Constructors
 	//
@@ -26,8 +25,8 @@ public abstract class SeqRecord
 
 	public abstract void readText(
 			BufferedReader reader)  // reader for text of the seq-
-						// uence record  
-		throws IOException, EOFException, RESyntaxException;
+						// uence record
+		throws IOException, EOFException;
 		// Purpose: reads itself (a sequence record) from 'reader'
 		// Returns: nothing
 		// Assumes: it will be implemented in all subclasses
@@ -36,13 +35,13 @@ public abstract class SeqRecord
 		// Notes:
 
 	public String getLine()
-		// Purpose: accessor for last line read of each record. 
-		//          Value will be either end-of-record string for 
+		// Purpose: accessor for last line read of each record.
+		//          Value will be either end-of-record string for
 		// 	     the sequence record OR null if EOF
 	{
 		return this.line;
 	}
-	
+
 	public String getText()
 		// Purpose: accessor for the text of the whole sequence record
         {
@@ -50,7 +49,7 @@ public abstract class SeqRecord
         }
 
         public String getOrganism()
-		// Purpose: accessor for the sequence record organism 
+		// Purpose: accessor for the sequence record organism
         {
 		return (this.organism.toString()).toLowerCase();
         }
@@ -75,11 +74,11 @@ public abstract class SeqRecord
 
         public Vector getSeqIds()
 		// Purpose: accessor for the sequence record seqIds
-		//           returns a Vector of Strings 
+		//           returns a Vector of Strings
         {
                 return this.seqIds;
         }
-	
+
 	public String getVersion()
 		// Purpose: accessor for the sequence record seqIdVersion
 		//          Returns empty string for records that do not use
@@ -87,15 +86,15 @@ public abstract class SeqRecord
 	{
 		return this.seqIdVersion;
 	}
-	
+
 	public String getVersionNumber()
 	{
 		// Purpose: accessor for the sequence record version number
 		//          Returns empty string for records that do not use
 		//	    the convention seqId + '.' + version
 		int index = seqIdVersion.indexOf(".");
-		return seqIdVersion.substring(index + 1, 
-			seqIdVersion.length());	
+		return seqIdVersion.substring(index + 1,
+			seqIdVersion.length());
 	}
 
 	public int getSeqLength()
@@ -109,11 +108,11 @@ public abstract class SeqRecord
 	{
 		return this.date;
 	}
-	
+
 	//
 	//instance vars
 	//
-	
+
 	// null when EOF, else end of record string
 	protected String line = "";
 
@@ -132,15 +131,15 @@ public abstract class SeqRecord
 	// The sequence record date
 	protected String date = "";
 
-	// A Vector of Strings representing seqIds for this record. 
+	// A Vector of Strings representing seqIds for this record.
 	// Position 0 is the primary seqId
-	protected Vector seqIds = new Vector();	
+	protected Vector seqIds = new Vector();
 
 	// This field used only by sequence records which version with the
 	// convention - seqId + '.' + version number
         protected String seqIdVersion = "";
 
-	// The sequence record organism type(s) 
+	// The sequence record organism type(s)
         protected StringBuffer organism = new StringBuffer();
 
 	// The sequence

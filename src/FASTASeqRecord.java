@@ -2,23 +2,22 @@ package org.jax.mgi.bio.seqrecord;
 
 import java.io.*;
 import java.util.*;
-import org.apache.regexp.*;
 
 public class FASTASeqRecord extends SeqRecord
 {
 	// Concept:
 	//	  IS: an object that represents a FASTA-format sequence record
-	//	 HAS: A description string - also see superclass 
+	//	 HAS: A description string - also see superclass
 	//	DOES: Implements the super class readText method to read itself
 	//	      from an input stream.  Sets attributes for a previously
-	//	      instantiated FASTASeqRecord object.  Provides accessor 
+	//	      instantiated FASTASeqRecord object.  Provides accessor
 	//	      for description.  Resets attributes for a previously
 	//	      instantiated FASTASeqRecord object.
-	//	      Also see superclass 
+	//	      Also see superclass
 	// Implementation:
 
-	//	
-	// Constructors: 
+	//
+	// Constructors:
 	//
 
         public FASTASeqRecord()
@@ -26,23 +25,23 @@ public class FASTASeqRecord extends SeqRecord
 	    // Purpose: Creates a default FASTASeqRecord object.
 	    //          Calls reset to initialize variables.
 	    // Throws: nothing
-	    
+
 	    this.reset();
 
         }
 
-	//	
-	// Methods: 
+	//
+	// Methods:
         //
         //
 
-	public void readText(BufferedReader reader) 
+	public void readText(BufferedReader reader)
 		throws IOException, EOFException
         {
         // Purpose: reads a FASTA-format sequence record using 'reader'
         // Returns: nothing
         // Assumes: "reader" is a stream of FASTA-format sequence records
-        // Effects: "reader" has advanced to the next record in the stream 
+        // Effects: "reader" has advanced to the next record in the stream
         // Throws: IO, EOF,  and regular expression syntax exceptions
         // Notes:
 
@@ -55,26 +54,26 @@ public class FASTASeqRecord extends SeqRecord
 
 		// true if current line is a description line.
 		boolean flagDescription = false;
-	
+
 		// carriage return
                 String CRT = "\n";
-		
+
 		// values for current seqID
 		String currentSeqID;
-		
+
 		// reinit all instance vars for a new record
 		this.reset();
-                
-		// read current line in the reader stream. 
+
+		// read current line in the reader stream.
                 this.line = reader.readLine();
- 		
+
 		// Debug
 		this.lineCount ++;
 
-		// a null "line" indicates EOF. If EOF we're done.	
-		while(this.line != null)		
+		// a null "line" indicates EOF. If EOF we're done.
+		while(this.line != null)
                 {
-			if(this.line.startsWith(DESCRIPTION)) 
+			if(this.line.startsWith(DESCRIPTION))
 			// Parse FASTA description line
 			 // Can be only one description line per record. The
 			 // seqID is the non-space string that appears immediately
@@ -83,10 +82,13 @@ public class FASTASeqRecord extends SeqRecord
                         {
 
 			   // break this description line into tokens
+               // sc - this is splitting on " "
 			   tokenizedDescription = new StringTokenizer(
 				                    this.line);
 
          		   // get the current seqID by stripping away '>'
+                    // sc - this is saving the part of the description line
+                    // up to the first " " and minus the leading ">"
 			   currentSeqID = tokenizedDescription.nextToken();
 			   currentSeqID = currentSeqID.substring(
 						1,currentSeqID.length());
@@ -98,6 +100,7 @@ public class FASTASeqRecord extends SeqRecord
          		   if (tokenizedDescription.hasMoreElements())
 			   {
 			      this.description = tokenizedDescription.nextToken();
+                  // sc don't know what this is doing -
 			      this.description = this.line.substring(this.line.indexOf(
 				        this.description),this.line.length());
 
@@ -118,11 +121,11 @@ public class FASTASeqRecord extends SeqRecord
 			    flagDescription = true;
 
                         }
-			
+
 			else if (flagDescription == true)
 			// Parse sequence lines
 			 // if the Description flag is true append this line to
-                         // "sequence". When next DESCRIPTION is found, sequence is 
+                         // "sequence". When next DESCRIPTION is found, sequence is
 		         //done
 			{
 			   this.sequence.append(this.line.trim());
@@ -130,12 +133,12 @@ public class FASTASeqRecord extends SeqRecord
 			   // append line to text attribute
 			   this.text.append(this.line + CRT);
 			}
-			
+
 			// read the next line in the record
 			this.line = reader.readLine();
 
 			// Since first line of next record is the only delimiter
-			// between records, reset reader to beginning of next 
+			// between records, reset reader to beginning of next
 			// record.
 			if (this.line == null)
 			// exit loop if EOF
@@ -147,7 +150,7 @@ public class FASTASeqRecord extends SeqRecord
 			{
 			    reader.reset();
 			    break;
-			} 
+			}
 			else
 			// mark the reder at the end of each sequence line
 			{
@@ -229,7 +232,7 @@ public class FASTASeqRecord extends SeqRecord
 		}
 
 		// reformat the sequence by calculating the coordinates
-		// for the sequence substring that will be appended to 
+		// for the sequence substring that will be appended to
 		// the entry.
 		for (int i = 0; i < loopLimit; i++)
 		{
@@ -261,7 +264,7 @@ public class FASTASeqRecord extends SeqRecord
 	    this.text = sbentry;
 
 	}
-	
+
 	// Accessor for description attribute
 	public String getDescription()
         {
@@ -289,7 +292,7 @@ public class FASTASeqRecord extends SeqRecord
 
 	// The FASTA description.
 	protected String description = "";
-	
+
         //DEBUG:
         public static int lineCount = 0;
 

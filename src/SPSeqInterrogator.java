@@ -1,35 +1,34 @@
 package org.jax.mgi.bio.seqrecord;
 
-import org.apache.regexp.*;
 import java.util.*;
 
 public class SPSeqInterrogator
 {
 	// Concept:
-        //        IS: an object that queries a SwissProt/TREMBL sequence record 
+        //        IS: an object that queries a SwissProt/TREMBL sequence record
         //       HAS: a mapping structure for mapping controlled vocabulary
-	//	      to string expressions	
+	//	      to string expressions
         //      DOES: Given a sequence record and a controlled vocabulary string
-	//		determine if 's' is for a organism 'organism' . 
-	//		e.g. Given sequence record 's' and controlled vocab 
-	//		string "mouse" determine if 's' is a mouse record. 
+	//		determine if 's' is for a organism 'organism' .
+	//		e.g. Given sequence record 's' and controlled vocab
+	//		string "mouse" determine if 's' is a mouse record.
 	//            Given a sequence record and a controlled vocabulary string
-	// 		determine if 's' is organism classification for 
-	//              'organism' 
+	// 		determine if 's' is organism classification for
+	//              'organism'
 	//		e.g. Given a sequence record 's' and controlled vocab
-	//		string "rodentia" determine if 's' has "rodentia" 
+	//		string "rodentia" determine if 's' has "rodentia"
 	//		organism classification
-	// RESPONSIBLE FOR: 1) mapping controlled vocab terms to string 
+	// RESPONSIBLE FOR: 1) mapping controlled vocab terms to string
 	//		       expressions
 	//		    2) providing basic predicates to compare fields
-	//		       of a sequence record to controlled vocabulary	
+	//		       of a sequence record to controlled vocabulary
         // Implementation:
 
-	//	
+	//
 	//methods
 	//
 
-	public boolean isOrganism(	
+	public boolean isOrganism(
 		SeqRecord s,       // a SwissProt sequence record
 		String organism)   // organism controlled vocabulary
 	{
@@ -40,17 +39,17 @@ public class SPSeqInterrogator
         // Effects: nothing
         // Throws: nothing
         // Notes:
-		
+
 		// get the string expression that is mapped to 'organism'
 		String matchString = (String)expressions.get(organism);
-		
+
 		// return true if the string expression matches organism of  's'
 		if((s.getOrganism()).indexOf(matchString) >  -1)
                         return true;
                 else
                         return false;
 	}
-	
+
 	public boolean isOrganismClassif(
                 SeqRecord s,       // a SwissProt sequence record
                 String organism)   // organism controlled vocabulary
@@ -74,7 +73,7 @@ public class SPSeqInterrogator
                         return false;
         }
 
-	
+
 	//
 	// instance variables
 	//
@@ -86,7 +85,7 @@ public class SPSeqInterrogator
 	private static String RAT = "Rattus".toLowerCase();
 	private static String RODENT = "Rodentia;".toLowerCase();
 	private static String HUMAN = "sapiens".toLowerCase();
-	
+
 	// load HashMap with controlled vocab keys and string expression values
 	private static HashMap expressions = new HashMap();
 	static
@@ -96,6 +95,6 @@ public class SPSeqInterrogator
 		expressions.put("rodent", RODENT);
 		expressions.put("human", HUMAN);
 	}
-     
+
 }
 

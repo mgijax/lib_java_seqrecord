@@ -2,37 +2,36 @@ package org.jax.mgi.bio.seqrecord;
 
 import java.io.*;
 import java.util.*;
-import org.apache.regexp.*;
 
 public class GBFASTASeqRecord extends FASTASeqRecord
 {
 	// Concept:
 	//	  IS: an object that represents a GBFASTA-format sequence record
-	//	 HAS: see superclass 
+	//	 HAS: see superclass
 	//	DOES: Extends the super class readText method to parse out the
-	//	      seqId from the description 
-	//	      Also see superclass 
+	//	      seqId from the description
+	//	      Also see superclass
 	// Implementation:
 
-	//	
-	// Constructors: 
+	//
+	// Constructors:
 	//
 
         public GBFASTASeqRecord()
         {
 	    // Purpose: Creates a default GBFASTASeqRecord object.
 	    // Throws: nothing
-	    
+
 		super();
 
         }
 
-	//	
-	// Methods: 
+	//
+	// Methods:
         //
         //
 
-	public void readText(BufferedReader reader) 
+	public void readText(BufferedReader reader)
 		throws IOException, EOFException
         {
         // Purpose: reads a FASTA-format sequence record extending the super
@@ -40,7 +39,7 @@ public class GBFASTASeqRecord extends FASTASeqRecord
 	//          FASTA 'unique identifier'
         // Returns: nothing
         // Assumes: "reader" is a stream of FASTA-format sequence records
-        // Effects: "reader" has advanced to the next record in the stream 
+        // Effects: "reader" has advanced to the next record in the stream
         // Throws: IO, EOF,  and regular expression syntax exceptions
 
 		// have the superclass method do its work
@@ -64,17 +63,17 @@ public class GBFASTASeqRecord extends FASTASeqRecord
 		// '.' to get the seqId
 		StringTokenizer tokenizedFASTAId = new StringTokenizer(
                         (String)(this.seqIds.get(0)), "|");
-		
+
 		// count of total tokens in tokenizedFASTAId
 		int count = seqIdVersionToken;
-	
+
 		// the last token is the seqId
 		for(int i = 1; i < count ; i++)
 		{
 			dummy = tokenizedFASTAId.nextToken();
 		}
 
-		String seqIdVersion = tokenizedFASTAId.nextToken();	
+		String seqIdVersion = tokenizedFASTAId.nextToken();
 
 		// to extract the seqId from seqIdVersion
                 StringTokenizer tokenizedSeqIdV = new StringTokenizer(
