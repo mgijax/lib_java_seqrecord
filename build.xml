@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!-- This XML script is used to build the lib_java_seqrecord product.
+-->
+<project name="lib_java_seqrecord" default="compile" basedir=".">
+
+   <!-- Get the system environment variables and define any other system
+        properties needed by the build.
+   -->
+   <property environment="env"/>
+   <property name="jar.name" value="seqrecord"/>
+
+   <!-- Import the universal targets.
+   -->
+   <import file="${env.MGICONFIG}/etc/build.lib.targets.xml"/>
+
+   <!-- Define product specific targets.
+   -->
+   <target name="buildall" description="Executes task 'all'"
+           depends="clean, jar, link">
+   </target>
+</project>
