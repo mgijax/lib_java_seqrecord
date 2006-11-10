@@ -108,19 +108,16 @@ public class EMBLSeqRecord extends SeqRecord
 
                 // discard  "ID" tag
                 dummy = tokenizedID.nextToken();
-
                 // discard Entry Name
                 dummy = tokenizedID.nextToken();
-
                 //discard Data Class
                 dummy = tokenizedID.nextToken();
-
                 // get the molecule type
-                this.type = tokenizedID.nextToken();
-
+		this.type = "PRT";
+                //this.type = tokenizedID.nextToken();
                 // strip off the trailing ';'
-                this.type = this.type.substring(
-                    0, this.type.length() - 1);
+               // this.type = this.type.substring(
+                 //   0, this.type.length() - 1);
                 // get the sequence length as an int
                 this.seqLength =
                     Integer.parseInt(
