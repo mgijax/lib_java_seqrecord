@@ -54,6 +54,10 @@ public class GBSeqRecord extends SeqRecord
 		// true if current line is an ORGANISM line. false when
 		// REFERENCE line has been reached
                 boolean flagOrganism = false;
+		
+		// true if the current line is a COMMENT line, false when
+		// FEATURES line has been reached
+		boolean flagComment = false;
 
 		// true if current line is an ORIGIN line
 		// all subsequent lines are ORIGIN lines until EOREC
@@ -82,7 +86,9 @@ public class GBSeqRecord extends SeqRecord
 			// append line to text
                         this.text.append(this.line + CRT);
 
-			matcher = ORGANISM.matcher(this.line);
+			organismMatcher = ORGANISM.matcher(this.line);
+                        classMatcher = CLASS.matcher(this.line);
+			contactMatcher = CONTACT.matcher(this.line);
 
 			if ((this.line.startsWith(ORIGIN)))
                         // If line starts with ORIGIN, set the origin flag which
@@ -194,20 +200,19 @@ public class GBSeqRecord extends SeqRecord
                                 }
 
                         }
-			else if(matcher.find())
-                        //else if((ORGANISM.match(this.line) == true))
+			else if(organismMatcher.find())
 			// we have found the ORGANISM line save it
                         // ORGANISM is a sub-keyword of SOURCE and indented
                         //      use regexp to find it
                         {
                                 //this.organism.append(ORGANISM.getParen(1));
-				this.organism.append(matcher.group(1));
+				this.organism.append(organismMatcher.group(1));
                                 // We have found the ORGANISM line for this rcd
 				flagOrganism = true;
 
                         }
 
-			else if((this.line.startsWith(REFERENCE)))
+			else if(this.line.startsWith(REFERENCE))
 			// line starts with REFERENCE we are at the end
                         // of ORGANISM lines. Set the organism flag to false
                         {
@@ -222,7 +227,31 @@ public class GBSeqRecord extends SeqRecord
                         {
                                 this.organism.append(this.line);
                         }
-
+			else if(this.line.startsWith(COMMENT))
+			// We've found start of COMMENT field
+			{
+		  	    //System.out.println("Found COMMENT");
+			    //System.out.println(line);
+			    flagComment = true;
+			    this.comment.append(this.line);
+			    processCOMMENTLine(this.line);
+			}
+			else if(flagComment == true && this.line.startsWith(FEATURES)) 
+ 			// When we find the FEATURES line we are at the end 
+			// of the COMMENT section	
+			{
+			    //System.out.println("Found FEATURES");
+			    flagComment = false;
+			}
+			else if (flagComment == true)
+                        // If we have found the COMMENT line, but we havent
+                        //    found the FEATURES line, append the line to
+                        //    "comment"
+                        {
+                            this.comment.append(this.line);
+			    //System.out.println(line);
+                            processCOMMENTLine(this.line);
+                        }
 			// read the next line in the record
 			this.line = reader.readLine();
 		}
@@ -236,11 +265,31 @@ public class GBSeqRecord extends SeqRecord
                 // we are at EOREC so append it to text
                 else
                 {
+			//System.out.println(comment);
                         this.text.append(this.line + CRT);
                 }
 
 	}
 
+	// Process this COMMENT field line
+	public void processCOMMENTLine(String line) 
+        {
+	    // create Matcher objects for class and contact
+	    classMatcher = CLASS.matcher(line);
+	    contactMatcher = CONTACT.matcher(line);
+	    //System.out.println(line);
+	    // attempt to match
+	    if (classMatcher.find())
+	    {
+		this.commentClass = classMatcher.group(1).trim();
+		//System.out.println("Class: " + this.commentClass);
+	    }
+	    else if (contactMatcher.find())
+	    {
+		this.commentContact = contactMatcher.group(1).trim();
+		//System.out.println("Contact: " + this.commentContact);	
+	    }
+	}
 	// Accessor for GI Id
 	public String getGenInfoId()
         {
@@ -261,6 +310,9 @@ public class GBSeqRecord extends SeqRecord
                 this.organism.setLength(0);
                 this.sequence.setLength(0);
 		this.genInfoId = "";
+	        this.comment.setLength(0);
+		this.commentClass = "";
+		this.commentContact = "";
 
         }
 
@@ -276,20 +328,28 @@ public class GBSeqRecord extends SeqRecord
 	// String expressions for parsing Genbank-format records
     private static String LOCUS = "LOCUS";
     private static String ACCESSION = "ACCESSION";
-	private static String VERSION = "VERSION";
+    private static String VERSION = "VERSION";
     private static String REFERENCE = "REFERENCE";
     private static String ORIGIN = "ORIGIN";
+    private static String COMMENT = "COMMENT";
+    private static String FEATURES = "FEATURE";
     private static String EOREC = "//";
- 	private Matcher matcher = null;
+    private Matcher organismMatcher = null;
+    private Matcher classMatcher = null;
+    private Matcher contactMatcher = null;
 
     //Regular Expression objects for parsing Genbank-format records
     private static Pattern ORGANISM;
+    private static Pattern CLASS;
+    private static Pattern CONTACT;
 
     // define the regular expression
     static
     {
         try {
             ORGANISM = Pattern.compile("^ +ORGANISM +(.+)$");
+	    CLASS = Pattern.compile("[ COMENT]*Class: +(.+)$");
+	    CONTACT = Pattern.compile("[ COMENT]*Contact: +(.+)$");
         }
         // this should only happen during development - so catch here
         catch(PatternSyntaxException e ) {

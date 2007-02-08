@@ -109,6 +109,23 @@ public abstract class SeqRecord
 		return this.date;
 	}
 
+	public String getComment()
+            // Purpose: accessor for the full COMMENT field
+        {
+            return this.comment.toString();
+
+        }
+	public String getCommentClass()
+            // Purpose: accessor for the 'Class' field of the COMMENT" field
+        {
+	    return this.commentClass;
+	}
+	public String getCommentContact()
+	    // Purpose: accessor for the 'Contact' field of the COMMENT" field
+	{
+	    return this.commentContact;
+	}
+
 	//
 	//instance vars
 	//
@@ -144,5 +161,13 @@ public abstract class SeqRecord
 
 	// The sequence
         protected StringBuffer sequence = new StringBuffer();
+	// The full COMMENT field (for gene traps
+	protected StringBuffer comment = new StringBuffer();
+ 
+	// the "Class" field of the COMMENT field (for gene traps)	
+	protected String commentClass = "";
+	
+	// the "Contact" field of the COMMENT field (for gene traps)
+	protected String commentContact = "";
 }
 
